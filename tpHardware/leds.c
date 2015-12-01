@@ -1,15 +1,29 @@
 #include <gpio.h>
+#include <FreeRTOS.h>
+#include <task.h>
+#include <timer.h>
+
+pin_t pin;
 
 int main() {
-    //Initialize the pin_t structure with the pin port and number
-    //On this board there is a LED on PG13
-    pin_t pin = make_pin(GPIO_PORT_G, 13);
 
-    //configure the pin for output. 
-    gpio_config(pin, pin_dir_write, pull_down);
+	pin = make_pin(GPIO_PORT_B, 4);
+	gpio_config(pin, pin_dir_write, pull_down);
 
-    //set the pin to HIGH
-    gpio_set(pin, 1);
+	int period = 32768;
+	int prescale = 1;
 
-    return 0;
+	timer_init(3, 1, prescale, period);
+
+	int i = 0;
+	double decal = 1;
+
+	while(1) {
+		timer_init_pwmchannel(3, 1, pin, i);
+		i = i + decal;
+		decal = (i == period || i == 0) ? -1 * decal : decal;
+	}
+
+	return 0;
+
 }

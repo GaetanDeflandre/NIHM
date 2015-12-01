@@ -2,13 +2,13 @@ export BOARD = stm32f429discovery
 ROOTDIR = $(CURDIR)/uC-sdk
 
 ifeq ($(wildcard $(ROOTDIR)/uC-sdk.root),)
-ifneq ($(wildcard ../../../uC-sdk.root),)
-ROOTDIR = ../../..
+ifneq ($(wildcard ./uC-sdk/uC-sdk.root),)
+ROOTDIR = ./uC-sdk
 endif
 endif
 
-TARGET = leds.bin
-TARGET_SRCS = leds.c
+TARGET = input.bin
+TARGET_SRCS = input.c
 
 LIBDEPS = \
 $(ROOTDIR)/FreeRTOS/libFreeRTOS.a \
@@ -60,4 +60,3 @@ include $(ROOTDIR)/libm/config.mk
 include $(ROOTDIR)/acorn/config.mk
 include $(ROOTDIR)/hardware/config.mk
 include $(ROOTDIR)/target-rules.mk
-
