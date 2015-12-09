@@ -75,16 +75,27 @@ public class Canvas2D extends Canvas implements MouseMotionListener,
 					0, 360);
 		}
 
-		if (!RStroke.isEmpty() && !TStroke.isEmpty()) {
+		if (dtw != null && !dtw.isEmpty()) {
+
+			System.out.println("Draw corresponding !");
 
 			int i = dtw.getRows() - 1;
 			int j = dtw.getCols() - 1;
 
-			g.setColor(Color.pink);
-			
+			g.setColor(Color.magenta);
+
+			while (i > 0 && j > 0) {
+				g.drawLine(RStroke.elementAt(i).x,
+						RStroke.elementAt(i).y, TStroke.elementAt(j).x,
+						TStroke.elementAt(j).y);
+
+				int x = dtw.getCouple(i, j).x;
+				j = dtw.getCouple(i, j).y;
+				i = x;
+			}
+
 			// remonter la matrice de couple par la fin (tableau dinamique)
 
-			
 		}
 
 	}
@@ -124,5 +135,6 @@ public class Canvas2D extends Canvas implements MouseMotionListener,
 		if (!RStroke.isEmpty() && !TStroke.isEmpty()) {
 			dtw = new DTW(RStroke, TStroke);
 		}
+		repaint();
 	}
 }
