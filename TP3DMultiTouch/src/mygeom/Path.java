@@ -2,12 +2,8 @@ package mygeom;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
-
-import mygeom.Point2;
 
 /**
  * Path.java
