@@ -1,0 +1,44 @@
+package mygeom;
+
+public class Vector2 extends Tuple2 {
+	
+	public Vector2() {
+		super();
+	}
+	
+	public Vector2(Segment2 s1) {
+		x=s1.end.getX()-s1.init.getX();
+		y=s1.end.getY()-s1.init.getY();
+	}
+	
+	public Vector2(Point2 a,Point2 b) {
+		x=b.getX()-a.getX();
+		y=b.getY()-a.getY();
+	}
+	
+	public Vector2(Vector2 a) {
+		super(a);
+	}
+	
+	public Vector2(double x,double y) {
+		super(x,y);
+	}
+	
+	public double dot(Vector2 v) {
+		return x*v.x + y*v.y;
+	}
+	
+	public double det(Vector2 v) {
+		double val = x*v.y -y*v.x;
+		if (val>=0) return 1; else return -1;
+	}
+
+	public double length() {
+		return Math.sqrt(x*x+y*y);
+	}
+	public String toString() {
+		return "Vector("+x+","+y+")";
+	}
+
+	
+}
