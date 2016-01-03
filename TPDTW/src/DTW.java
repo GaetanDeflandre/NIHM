@@ -36,16 +36,16 @@ public class DTW {
 		final int m = TStroke.size();
 
 		DMatrix = new Matrix(n, m, true);
-		DMatrix.items[1][1] = RStroke.get(0).distance(TStroke.get(0));
+		DMatrix.items[0][0] = 0;
 
 		for (int i = 1; i < n; i++) {
-			final double dist = RStroke.get(i).distance(TStroke.get(1));
-			DMatrix.items[i][1] = dist + DMatrix.items[i - 1][1];
+			final double dist = RStroke.get(i).distance(TStroke.get(0));
+			DMatrix.items[i][0] = DMatrix.items[i - 1][0] + dist;
 		}
 
 		for (int j = 1; j < m; j++) {
-			final double dist = RStroke.get(1).distance(TStroke.get(j));
-			DMatrix.items[1][j] = dist + DMatrix.items[1][j - 1];
+			final double dist = RStroke.get(0).distance(TStroke.get(j));
+			DMatrix.items[0][j] = DMatrix.items[0][j - 1] + dist;
 		}
 
 		for (int i = 1; i < n; i++) {
@@ -82,7 +82,7 @@ public class DTW {
 				DMatrix.couple[i][j] = new Couple(minX, minY);
 			}
 		}
-		
+
 		empty = false;
 	}
 

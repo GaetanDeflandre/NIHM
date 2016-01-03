@@ -2,7 +2,7 @@
  * @author <a href="mailto:gery.casiez@lifl.fr">Gery Casiez</a>
  */
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
 public class TestGUI {
 
