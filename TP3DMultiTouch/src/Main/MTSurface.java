@@ -1,11 +1,13 @@
 package Main;
 
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import mygeom.Point2;
 import tuio.MTedt;
@@ -73,8 +75,7 @@ class MTEventQueue {
 
 }
 
-public class MTSurface extends GLJPanel implements GLEventListener,
-		MouseMotionListener {
+public class MTSurface extends GLJPanel implements GLEventListener {
 
 	static MTedt mtEdt = null;
 	private MTEventQueue mtqueue;
@@ -86,21 +87,55 @@ public class MTSurface extends GLJPanel implements GLEventListener,
 	int mouse_x, mouse_y;
 	GLUT glut = new GLUT();
 
+	// !!
+	// Map qui permet de savoir quels doigt a heurté la théière
+	Map<Integer, Boolean> hitMap;
+
+	// Dernier doigt actif
+	int lastId = -1;
+
+	// Movement de la souris
+	int move_x = 0;
+	int move_y = 0;
+
+	// Translations et rotations pour la théière
+	float tx = 0.0f;
+	float ty = 0.0f;
+	float tz = -2.0f;
+	float rx = 0.0f;
+	float ry = 0.0f;
+	// !!
+
 	public MTSurface(GLCapabilities caps) {
 		super(caps);
 		addGLEventListener(this);
 		mtqueue = new MTEventQueue();
 		bqueue = new BlobQueue();
 		pickingBuffer = IntBuffer.allocate(buffSize);
-		
+
 		if (mtEdt == null) {
 			mtEdt = new MTedt(this);
 		}
-		
+
+		// !!
+		// Initialisation de la map
+		hitMap = new HashMap<Integer, Boolean>();
+
 		javax.swing.Timer t = new javax.swing.Timer(20, new RePaint(this));
 		t.start();
 
-		addMouseMotionListener(this);
+	}
+
+	/**
+	 * @return true if any finger is hit with object
+	 */
+	public boolean isHit() {
+		for (boolean hit : hitMap.values()) {
+			if (hit) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public BlobQueue getBlobQueue() {
@@ -114,32 +149,58 @@ public class MTSurface extends GLJPanel implements GLEventListener,
 	public void addCursor(int id, Point2 p) {
 		p.x *= getPreferredSize().getWidth();
 		p.y *= getPreferredSize().getHeight();
+
+		// !!
+		hitMap.put(id, false);
+		lastId = id;
+
 		mtqueue.addEvent("add", id, p);
 	}
 
 	public void updateCursor(int id, Point2 p) {
-		if (id == 2){
+		if (id == 2) {
 			System.out.println(p.x + " " + p.y);
 		}
 		p.x *= getPreferredSize().getWidth();
 		p.y *= getPreferredSize().getHeight();
+
+		// !!
+		lastId = id;
+		hitMap.remove(id);
+		hitMap.put(id, false);
+
 		mtqueue.addEvent("update", id, p);
 	}
 
 	public void removeCursor(int id, Point2 p) {
+
+		// !!
+		hitMap.remove(id);
+
 		mtqueue.addEvent("remove", id, p);
 	}
 
-	float mrx = 0;
-	float mry = 0;
-	float mpz = 0;
-	
 	public void drawScene(GL2 gl) {
-		gl.glTranslatef(0, 0, -2);
-		gl.glRotatef(mrx, mry, 0, 0);
-		mrx += 0.2;
-		mry -= 0.1;
-		mpz -= 0.005;
+
+		// !!
+		// Permet les movements de la théière
+		if (bqueue.getNbFingers() == 1 && isHit()) {
+			tx += (float) move_x / 500.0f;
+			ty += (float) move_y / 500.0f;
+
+			System.out.println("tx=" + tx + ", ty=" + ty);
+		} else if (bqueue.getNbFingers() == 2 && isHit()) {
+			tz -= (float) move_y / 500.0f;
+		} else if (bqueue.getNbFingers() == 3 && isHit()) {
+			rx += (float) move_x / 20.0f;
+			ry += (float) move_y / 20.0f;
+		}
+
+		gl.glTranslatef(tx, -ty, tz);
+		gl.glRotatef(rx, ry, rx, ry);
+		// !!
+
+
 		float amb[] = { 0.24725f, 0.1995f, 0.0745f, 1f };
 		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, amb, 0);
 
@@ -150,11 +211,23 @@ public class MTSurface extends GLJPanel implements GLEventListener,
 		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, spec, 0);
 		gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, (float) (0.4 * 128.0));
 
-		//glut.glut
+		// glut.glut
 		glut.glutSolidTeapot(0.4);
 	}
 
 	public void display(GLAutoDrawable drawable) {
+		
+		// !!
+		// Permet l'obtention du delta de la souris
+		final Point mouse = MouseInfo.getPointerInfo().getLocation();
+		move_x = mouse.x - mouse_x;
+		move_y = mouse.y - mouse_y;
+		
+		mouse_x = mouse.x;
+		mouse_y = mouse.y;
+		// !!
+		
+		
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
@@ -215,6 +288,7 @@ public class MTSurface extends GLJPanel implements GLEventListener,
 	}
 
 	public void processHits(int hits, IntBuffer buffer) {
+
 		System.out.println("---------------------------------");
 		System.out.println(" HITS: " + hits);
 		int offset = 0;
@@ -222,6 +296,13 @@ public class MTSurface extends GLJPanel implements GLEventListener,
 		float z1, z2;
 		for (int i = 0; i < hits; i++) {
 			System.out.println("- - - - - - - - - - - -");
+			
+			// !!
+			// Gestion du doigt qui heurte la théière
+			hitMap.remove(lastId);
+			hitMap.put(lastId, true);
+			// !!
+			
 			System.out.println(" hit: " + (i + 1));
 			names = buffer.get(offset);
 			offset++;
@@ -285,13 +366,5 @@ public class MTSurface extends GLJPanel implements GLEventListener,
 
 	}
 
-	public void mouseDragged(MouseEvent e) {
-
-	}
-
-	public void mouseMoved(MouseEvent e) {
-		mouse_x = e.getX();
-		mouse_y = e.getY();
-	}
 
 }
