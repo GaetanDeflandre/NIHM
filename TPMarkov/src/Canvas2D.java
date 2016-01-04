@@ -113,7 +113,7 @@ public class Canvas2D extends Canvas implements MouseMotionListener,
 			TresampledPoints = hmm.getResampledPoints();
 			hmm.recognize();
 			console = hmm.getRecognitionInfo();
-			// hmm.TestAllExamples();
+			hmm.TestAllExamples();
 			repaint();
 		}
 	}

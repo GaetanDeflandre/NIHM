@@ -42,7 +42,7 @@ public class HMM {
 		classMap = new HashMap<String, GestureClass>();
 		templateManager = new TemplateManager("gestures.xml");
 		gesturesProbabilities = new Vector<GestureProbability>();
-		// Training();
+		Training();
 	}
 
 	/**
@@ -218,7 +218,19 @@ public class HMM {
 
 	public ArrayList<Double> computeFeatures(Vector<Point> points) {
 
-		return null;
+		ArrayList<Double> angles = new ArrayList<>();
+
+		for (int i = 1; i < points.size(); i++) {
+
+			Point prev = points.get(i - 1);
+			Point cur = points.get(i);
+
+			double angle = Math.abs(Math.atan2(cur.getY() - prev.getY(),
+					cur.getX() - prev.getX()));
+			angles.add(Math.toDegrees(angle) / 10);
+		}
+
+		return angles;
 	}
 
 	/**
