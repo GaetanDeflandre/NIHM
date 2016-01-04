@@ -272,22 +272,30 @@ public class HMM {
 	 * @return
 	 */
 	protected Vector<Point> resample(Vector<PointData> pts, int deltaTms) {
+
 		Vector<Point> res = new Vector<Point>();
 
-		long totalTime = pts.lastElement().getTimeStamp()
-				- pts.firstElement().getTimeStamp();
+		long timestamp = 0;
+		res.add(pts.get(0).getPoint());
 
-		long requiredTime = deltaTms;
-		long t0 = pts.firstElement().getTimeStamp();
+		for (int i = 1; i < pts.size(); i++) {
 
-		int i = 1;
+			PointData cur = pts.elementAt(i);
+			PointData prev = pts.elementAt(i - 1);
 
-		res.add(pts.firstElement().getPoint());
+			timestamp += cur.getTimeStamp() - prev.getTimeStamp();
 
-		while (requiredTime < totalTime) {
-			
-			// voir fonction de sam sur slack
+			if (timestamp >= 2 * deltaTms) {
+				timestamp = 0;
+			} else if (timestamp >= deltaTms) {
+				double t = ((double) cur.getTimeStamp() - (double) prev
+						.getTimeStamp()) / deltaTms;
+				double newx = prev.getX() + ((cur.getX() - prev.getX()) * t);
+				double newy = prev.getY() + ((cur.getY() - prev.getY()) * t);
 
+				res.add(new PointData(newx, newy, 0).getPoint());
+				timestamp = 0;
+			}
 		}
 
 		return res;
