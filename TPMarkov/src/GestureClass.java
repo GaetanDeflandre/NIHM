@@ -127,6 +127,7 @@ public class GestureClass {
 	public double computeScore(ArrayList<Double> featuresRawPoints) {
 
 		ArrayList<ObservationInteger> obs = new ArrayList<ObservationInteger>();
+		
 		for (Double i : featuresRawPoints) {
 			obs.add(new ObservationInteger(i.intValue()));
 		}

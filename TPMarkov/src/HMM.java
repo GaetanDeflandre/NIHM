@@ -218,7 +218,7 @@ public class HMM {
 
 	public ArrayList<Double> computeFeatures(Vector<Point> points) {
 
-		ArrayList<Double> angles = new ArrayList<>();
+		ArrayList<Double> res = new ArrayList<>();
 
 		for (int i = 1; i < points.size(); i++) {
 
@@ -227,10 +227,12 @@ public class HMM {
 
 			double angle = Math.abs(Math.atan2(cur.getY() - prev.getY(),
 					cur.getX() - prev.getX()));
-			angles.add(Math.toDegrees(angle) / 10);
+			
+			System.out.println("Angle : " + Math.toDegrees(angle));
+			res.add(Math.toDegrees(angle) / 10);
 		}
 
-		return angles;
+		return res;
 	}
 
 	/**
