@@ -28,3 +28,6 @@ Les scores des gestes sont faible et pas toujours correct.
 
 En modifiant ces paramètres, on observe un plus ou moins forte tolérance pour
 la reconnaissance de geste.
+
+
+![Geste rectangle](rectangle.png)
